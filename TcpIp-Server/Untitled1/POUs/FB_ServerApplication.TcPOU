@@ -92,7 +92,8 @@ END_IF]]></ST>
       </Implementation>
     </Method>
     <Property Name="isUpdated" Id="{d76cd531-efec-4a26-b4a0-939b55654e3b}">
-      <Declaration><![CDATA[PROPERTY isUpdated : BOOL]]></Declaration>
+      <Declaration><![CDATA[{attribute 'monitoring':='call'}
+PROPERTY isUpdated : BOOL]]></Declaration>
       <Get Name="Get" Id="{2357f7eb-34c2-4d0a-8001-9933d8ca88c5}">
         <Declaration><![CDATA[VAR
 END_VAR

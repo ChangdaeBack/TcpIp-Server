@@ -15,11 +15,16 @@ VAR
 	fbRx 			: FB_FrameFifo;(* Rx fifo *)
 	fbLog			: FB_LogFifo;(* Log/debug/error fifo *)
 	Application : I_Application;
-	Initalized: BOOL;
+	Initalized: BOOL ;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[(*-------------------------------- Trigger data exchange -----------------------------------------*)
+      <ST><![CDATA[IF NOT Initalized THEN
+	Init();
+	Initalized := FALSE;
+END_IF 
+
+(*-------------------------------- Trigger data exchange -----------------------------------------*)
 fbConnection( hServer := _hServer, sSrvNetID := ServerNetID, fbRx := fbRx, fbTx := fbTx, fbLog := fbLog, 
 			bEnable := _bEnable, bLog := _bLog, sPrefix := _sPrefix, eState => _eState );
 			
@@ -44,8 +49,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[THIS^.Application := application;
-Init();]]></ST>
+        <ST><![CDATA[THIS^.Application := application;]]></ST>
       </Implementation>
     </Method>
     <Method Name="Init" Id="{5c917692-77d0-4b74-a9d1-ad5076ff50e5}">
@@ -58,7 +62,8 @@ Application.fbTx REF= fbTx;]]></ST>
       </Implementation>
     </Method>
     <Property Name="isEnabling" Id="{3bd963f5-272d-438f-bc5d-876305915938}">
-      <Declaration><![CDATA[PROPERTY isEnabling : BOOL]]></Declaration>
+      <Declaration><![CDATA[{attribute 'monitoring':='call'}
+PROPERTY isEnabling : BOOL]]></Declaration>
       <Get Name="Get" Id="{31314264-8d39-4955-9943-81fc1fa890f4}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -77,7 +82,8 @@ END_VAR
       </Set>
     </Property>
     <Property Name="isLogging" Id="{97881ea2-865f-4faa-9f3a-c466add18d92}">
-      <Declaration><![CDATA[PROPERTY isLogging : BOOL]]></Declaration>
+      <Declaration><![CDATA[{attribute 'monitoring':='call'}
+PROPERTY isLogging : BOOL]]></Declaration>
       <Get Name="Get" Id="{03b969f7-8ce5-4787-a3ea-5918bf808469}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -96,7 +102,8 @@ END_VAR
       </Set>
     </Property>
     <Property Name="Name" Id="{1e3cc8af-6a47-4956-a156-f293f3fe3eb0}">
-      <Declaration><![CDATA[PROPERTY Name : STRING]]></Declaration>
+      <Declaration><![CDATA[{attribute 'monitoring':='call'}
+PROPERTY Name : STRING]]></Declaration>
       <Get Name="Get" Id="{f9c5209c-0fc5-4c5f-a9ab-e0ee12b1254b}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -134,7 +141,8 @@ END_VAR
       </Set>
     </Property>
     <Property Name="ServerNetID" Id="{7c4d1988-c114-437b-ba34-5545fcd82b1e}">
-      <Declaration><![CDATA[PROPERTY ServerNetID : T_AmsNetID]]></Declaration>
+      <Declaration><![CDATA[{attribute 'monitoring':='call'}
+PROPERTY ServerNetID : T_AmsNetID]]></Declaration>
       <Get Name="Get" Id="{21b440ef-7a01-49f8-a6a4-9d2cf4475ecb}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -153,7 +161,8 @@ END_VAR
       </Set>
     </Property>
     <Property Name="State" Id="{a8722d75-9c3b-4cea-950b-c3f9150a38ae}">
-      <Declaration><![CDATA[PROPERTY State : E_SocketConnectionState]]></Declaration>
+      <Declaration><![CDATA[{attribute 'monitoring':='call'}
+PROPERTY State : E_SocketConnectionState]]></Declaration>
       <Get Name="Get" Id="{4de26aa8-4d42-4a27-ac2b-585605522b36}">
         <Declaration><![CDATA[VAR
 END_VAR
