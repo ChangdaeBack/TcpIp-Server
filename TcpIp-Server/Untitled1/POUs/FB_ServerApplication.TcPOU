@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_ServerApplication" Id="{fbb56189-ec16-45e6-9d9d-ffdcd266fc33}" SpecialFunc="None">
+    <Declaration><![CDATA[(*----------------------- Simple TCP/IP application. Adapt this code to match your needs. ----*)
+FUNCTION_BLOCK FB_ServerApplication IMPLEMENTS I_Application
+VAR
+	_fbTx		: REFERENCE TO FB_FrameFifo;(* TX fifo *)
+	_fbRx		: REFERENCE TO FB_FrameFifo;(* RX fifo *)
+	_fbLog	 	: REFERENCE TO FB_LogFifo;(* Log/debug/error fifo *)
+	_Updated : BOOL;
+	
+	sFromClient	: T_MaxString := '';
+	sToClient	: T_MaxString := '';
+	sLogMessage : T_MaxString := '';
+	nCounter	: UDINT;
+	nTempCounter : UDINT;
+	
+	ReceiveandSendData : I_Application;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="fbLog" Id="{94fe2199-a28d-4b10-89b6-7767c2e045dc}">
+      <Declaration><![CDATA[PROPERTY fbLog : REFERENCE TO FB_LogFifo]]></Declaration>
+      <Get Name="Get" Id="{ca418fdb-0bc7-4915-bf0a-3ec1f444b54b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[fbLog REF= _fbLog;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{115ce44d-619f-4578-aa94-bc1354027357}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_fbLog REF= fbLog;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="fbRx" Id="{ee77a888-8cde-41cb-a9f3-4f412a922755}">
+      <Declaration><![CDATA[PROPERTY fbRx : REFERENCE TO FB_FrameFifo]]></Declaration>
+      <Get Name="Get" Id="{9cb3754b-5c6f-40f4-b172-02aa28b753cc}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[fbRx REF= _fbRx;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{179d8783-4b10-494c-be09-70246856946b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_fbRx REF= fbRx;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="fbTx" Id="{39d06f14-f109-437f-8570-8a18c683a51b}">
+      <Declaration><![CDATA[PROPERTY fbTx : REFERENCE TO FB_FrameFifo]]></Declaration>
+      <Get Name="Get" Id="{22b94075-8df1-45cf-af21-88b2e26f9c4e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[fbTx REF= _fbTx;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{dc755775-cc69-464a-b26f-2b2d59f55fb5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_fbTx REF= fbTx;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="GetLogData" Id="{2fca1445-3bd3-4cd4-be7c-f9e39800af7a}">
+      <Declaration><![CDATA[METHOD GetLogData
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbLog.Remove( );
+IF fbLog.bOk THEN
+	
+	(* TODO: Implement log message handler *)
+	sLogMessage := fbLog.sGet;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="isUpdated" Id="{d76cd531-efec-4a26-b4a0-939b55654e3b}">
+      <Declaration><![CDATA[PROPERTY isUpdated : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2357f7eb-34c2-4d0a-8001-9933d8ca88c5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isUpdated := _Updated;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="Receive" Id="{64657dd0-0277-4642-bc82-19dcd1093786}">
+      <Declaration><![CDATA[METHOD Receive]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbRx.RemoveHead( );(* Fetch received string from rx fifo *)
+	IF fbRx.bOk THEN(* Success *)
+
+		(*TODO: Implement receive data handler *)
+		nCounter := nCounter + 1;
+		sFromClient := fbRx.sGet;
+	END_IF
+
+_Updated := SEL(nCounter = nTempCounter ,TRUE , FALSE);
+nTempCounter := nCounter;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Send" Id="{862825d1-fbeb-405a-a22d-adc1535b753b}">
+      <Declaration><![CDATA[METHOD Send]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[sToClient 	:= sFromClient;
+(* Send received string back to the client *)
+fbTx.AddTail( sPut := sToClient );(* Add string to the tx fifo *)
+IF NOT fbTx.bOk THEN(* Fifo overflow => log error *)
+	fbLog.Error( sMessage := 'FB_FrameFifo(sender)', nErrID := PLCPRJ_ERROR_SENDFIFO_OVERFLOW );
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

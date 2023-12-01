@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Server" Id="{e4bb1b20-2692-4ae7-ae7c-c964a0db4aba}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Server
+VAR
+	_ServerNetID		: T_AmsNetID	:= '';(* TwinCAT TCP/IP server network address *)
+	_bEnable			: BOOL 			:= FALSE;(* TRUE => enable server data exchange, FALSE => disable *)
+	_bLog			: BOOL 			:= FALSE;(* TRUE => Enable log message output, FALSE => Disable *)
+	_sPrefix			: STRING 		:= 'SERVER::';(* Log message description string (allows the identification of log message source) *)
+	_eState			: E_SocketConnectionState := eSOCKET_DISCONNECTED;(* TCP/IP connection state *)
+	_hServer			: REFERENCE TO T_HSERVER;(* Server connection handle *)
+	
+	fbConnection	: FB_ServerConnection;(* Server data exchange control function block. Implements one server<->client connection *)
+	fbTx 			: FB_FrameFifo;(* Tx fifo *)
+	fbRx 			: FB_FrameFifo;(* Rx fifo *)
+	fbLog			: FB_LogFifo;(* Log/debug/error fifo *)
+	Application : I_Application;
+	Initalized: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*-------------------------------- Trigger data exchange -----------------------------------------*)
+fbConnection( hServer := _hServer, sSrvNetID := ServerNetID, fbRx := fbRx, fbTx := fbTx, fbLog := fbLog, 
+			bEnable := _bEnable, bLog := _bLog, sPrefix := _sPrefix, eState => _eState );
+			
+
+			
+IF fbConnection.eState = eSOCKET_CONNECTED THEN(* Connection established *)
+	(*************************This is depends on application****************************************)
+	AppliCation.Receive();
+	IF Application.isUpdated THEN
+		Application.Send();
+	END_IF
+	(***********************************************************************************************)
+END_IF
+]]></ST>
+    </Implementation>
+    <Method Name="FB_init" Id="{5983d63a-b1d4-46de-b4c2-689f20870633}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	application : I_Application;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.Application := application;
+Init();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Init" Id="{5c917692-77d0-4b74-a9d1-ad5076ff50e5}">
+      <Declaration><![CDATA[METHOD PRIVATE Init]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* 'REF=' DO NOT WORK IN FB_Init  (Probabaly Bug 4024.53) *)
+Application.fbLog REF= fbLog;
+Application.fbRx REF= fbRx;
+Application.fbTx REF= fbTx;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="isEnabling" Id="{3bd963f5-272d-438f-bc5d-876305915938}">
+      <Declaration><![CDATA[PROPERTY isEnabling : BOOL]]></Declaration>
+      <Get Name="Get" Id="{31314264-8d39-4955-9943-81fc1fa890f4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isEnabling := _bEnable;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{5eea7aec-b17d-4a7f-98cb-95a2f5e39678}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_bEnable := isEnabling;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="isLogging" Id="{97881ea2-865f-4faa-9f3a-c466add18d92}">
+      <Declaration><![CDATA[PROPERTY isLogging : BOOL]]></Declaration>
+      <Get Name="Get" Id="{03b969f7-8ce5-4787-a3ea-5918bf808469}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[isLogging := _bLog;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{a9032657-566d-4af4-81bb-7df6c25a5d45}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_bLog := isLogging;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Name" Id="{1e3cc8af-6a47-4956-a156-f293f3fe3eb0}">
+      <Declaration><![CDATA[PROPERTY Name : STRING]]></Declaration>
+      <Get Name="Get" Id="{f9c5209c-0fc5-4c5f-a9ab-e0ee12b1254b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Name := _sPrefix;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{db7cf90c-1fd9-4ae4-8969-8bf317d0b17b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_sPrefix := Name;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ServerConnectionHandle" Id="{beec8623-cf64-4300-939c-58c1e0b8b568}">
+      <Declaration><![CDATA[PROPERTY ServerConnectionHandle : REFERENCE TO T_HSERVER]]></Declaration>
+      <Get Name="Get" Id="{98038ef6-5ac9-4206-9d18-56808c7a256f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ServerConnectionHandle REF= _hServer;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{cc5ab284-8de8-4db9-a158-376a5a44999e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_hServer REF= ServerConnectionHandle;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ServerNetID" Id="{7c4d1988-c114-437b-ba34-5545fcd82b1e}">
+      <Declaration><![CDATA[PROPERTY ServerNetID : T_AmsNetID]]></Declaration>
+      <Get Name="Get" Id="{21b440ef-7a01-49f8-a6a4-9d2cf4475ecb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ServerNetID := _ServerNetID;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{67043950-9b6d-48d9-b531-9ebf3c4f609f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ServerNetID := ServerNetID;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="State" Id="{a8722d75-9c3b-4cea-950b-c3f9150a38ae}">
+      <Declaration><![CDATA[PROPERTY State : E_SocketConnectionState]]></Declaration>
+      <Get Name="Get" Id="{4de26aa8-4d42-4a27-ac2b-585605522b36}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[State := _eState;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+  </POU>
+</TcPlcObject>

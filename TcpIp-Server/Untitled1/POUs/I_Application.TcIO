@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="I_Application" Id="{7c07e586-e693-443d-86aa-8d247af267c7}">
+    <Declaration><![CDATA[INTERFACE I_Application
+]]></Declaration>
+    <Property Name="fbLog" Id="{5f4aa1b6-d35d-4b8e-a375-e4a45eea418c}">
+      <Declaration><![CDATA[PROPERTY fbLog : REFERENCE TO FB_LogFifo]]></Declaration>
+      <Get Name="Get" Id="{d75206dc-060f-48e5-8894-e508cc6e3b04}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{1454964c-0632-4943-92e0-6bf9ce0e9b3c}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="fbRx" Id="{0b06efa2-7795-4f7f-8a2f-c4fb05fab6cf}">
+      <Declaration><![CDATA[PROPERTY fbRx : REFERENCE TO FB_FrameFifo]]></Declaration>
+      <Get Name="Get" Id="{64661e22-a942-42a3-85da-7178e2c2b709}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{7567ceda-2f5d-4068-8c32-e3c41fbe82b5}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="fbTx" Id="{1b5165b1-bac7-47bf-9e0e-9ab393cb8e85}">
+      <Declaration><![CDATA[PROPERTY fbTx : REFERENCE TO FB_FrameFifo]]></Declaration>
+      <Get Name="Get" Id="{f00841e2-7680-491b-8d8e-3923ac910717}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{e7a02768-8093-4d54-abff-bf5355596e80}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="isUpdated" Id="{ec43008f-4899-45d3-8609-d0a5f65169ac}">
+      <Declaration><![CDATA[PROPERTY isUpdated : bool]]></Declaration>
+      <Get Name="Get" Id="{625a3793-0b55-4768-86a2-ac43e79f2345}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="Receive" Id="{34b5a84c-a02a-4728-964b-2416a738d0a8}">
+      <Declaration><![CDATA[METHOD Receive]]></Declaration>
+    </Method>
+    <Method Name="Send" Id="{5cc328a4-8b67-4ac8-9aa5-ac1d87afda76}">
+      <Declaration><![CDATA[METHOD Send]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>
