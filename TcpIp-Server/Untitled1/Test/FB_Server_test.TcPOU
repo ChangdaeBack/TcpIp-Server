@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Server_test" Id="{fa79dd16-3621-49d8-9db1-3c3458af12cc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Server_test Extends TcUnit.FB_TestSuite
+VAR
+	fbApplication : FB_ServerApplication;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SendHelloReceiveHello();]]></ST>
+    </Implementation>
+    <Method Name="SendHelloReceiveHello" Id="{aa288fdc-6483-47d6-a26c-257c1e4d20ae}">
+      <Declaration><![CDATA[METHOD PRIVATE SendHelloReceiveHello
+VAR
+	
+END_VAR
+VAR_INST
+	sSrvNetID		: T_AmsNetID	:= '';(* TwinCAT TCP/IP server network address *)
+	sLocalHost		: T_IPv4Addr 	:= '127.0.0.1';(* Own (server) IP address! *)
+	nLocalPort		: UDINT 		:= 5000;(* Own (server) port number! *)
+	bEnable			: BOOL 			:= TRUE;(* TRUE => Enable server data exchange, FALSE => Disable *)
+	bLog			: BOOL			:= TRUE;(* TRUE => Enable message/error log, FALSE => Disable *)
+
+	hServer			: T_HSERVER;(* Server connection handle *)
+
+	fbCloseAll		: FB_SocketCloseAll;
+	bInitialize		: BOOL := TRUE;
+	fbApplication : FB_ServerApplication;
+	fbServer : FB_Server(fbApplication);
+	Expected : STRING :='Hello';
+	fbTon : TON := (PT:=T#30S);
+	Actual : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF Test_ORDERED('SendHelloReceiveHello') THEN
+	
+	(**)
+		fbCloseAll( sSrvNetID := sSrvNetID, bExecute:= bInitialize );
+		IF fbCloseAll.bBusy OR fbCloseAll.bError THEN
+			RETURN;
+		END_IF
+		
+		IF bInitialize THEN
+			bInitialize := FALSE;
+			(* Initialize server handle once *)
+			F_CreateServerHnd( 	sSrvNetID := sSrvNetID, 
+								sLocalHost := sLocalHost, 
+								nLocalPort	:= nLocalPort,
+								nMode 		:= SEL( bLog, 0, CONNECT_MODE_ENABLEDBG),(* Enable/disable debug messages? *)
+								bEnable 	:= FALSE,(* TRUE = leave listener socket open, FALSE = close listener socket after last connection ist closed too *)
+								hServer 	:= hServer );
+			fbServer.ServerConnectionHandle REF= hServer;
+			fbServer.ServerNetID := sSrvNetID;
+								
+		ELSE
+			
+			fbServer.isEnabling := bEnable;
+			fbServer.isLogging := bLog;
+			fbServer();	
+		END_IF
+	(**)
+	Actual := fbServer.SentString;
+	
+	
+	
+	IF fbTon.Q OR fbServer.SentString = Expected THEN
+		AssertEquals(Expected := Expected,
+										Actual := Actual,
+										Message := 'fbServer Sent String worng!');
+		TEST_FINISHED();
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

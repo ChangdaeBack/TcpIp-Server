@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="POU_test" Id="{4256dfdc-1ecf-49cd-854a-5ba5f146b17c}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM POU_test
+VAR
+	fbServertest : FB_Server_test;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[TcUnit.RUN_IN_SEQUENCE();]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

@@ -41,7 +41,8 @@ ELSE
 	fbServer.isEnabling := bEnable;
 	fbServer.isLogging := bLog;
 	fbServer();	
-END_IF]]></ST>
+END_IF
+]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

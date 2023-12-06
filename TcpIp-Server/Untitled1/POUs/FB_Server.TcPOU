@@ -5,9 +5,9 @@
 VAR
 	_ServerNetID		: T_AmsNetID	:= '';(* TwinCAT TCP/IP server network address *)
 	_bEnable			: BOOL 			:= FALSE;(* TRUE => enable server data exchange, FALSE => disable *)
-	_bLog			: BOOL 			:= FALSE;(* TRUE => Enable log message output, FALSE => Disable *)
+	_bLog				: BOOL 			:= FALSE;(* TRUE => Enable log message output, FALSE => Disable *)
 	_sPrefix			: STRING 		:= 'SERVER::';(* Log message description string (allows the identification of log message source) *)
-	_eState			: E_SocketConnectionState := eSOCKET_DISCONNECTED;(* TCP/IP connection state *)
+	_eState				: E_SocketConnectionState := eSOCKET_DISCONNECTED;(* TCP/IP connection state *)
 	_hServer			: REFERENCE TO T_HSERVER;(* Server connection handle *)
 	
 	fbConnection	: FB_ServerConnection;(* Server data exchange control function block. Implements one server<->client connection *)
@@ -24,21 +24,17 @@ END_VAR
 	Initalized := FALSE;
 END_IF 
 
-(*-------------------------------- Trigger data exchange -----------------------------------------*)
 fbConnection( hServer := _hServer, sSrvNetID := ServerNetID, fbRx := fbRx, fbTx := fbTx, fbLog := fbLog, 
 			bEnable := _bEnable, bLog := _bLog, sPrefix := _sPrefix, eState => _eState );
-			
-
-			
-IF fbConnection.eState = eSOCKET_CONNECTED THEN(* Connection established *)
+						
+IF fbConnection.eState = eSOCKET_CONNECTED THEN
 	(*************************This is depends on application****************************************)
 	AppliCation.Receive();
 	IF Application.isUpdated THEN
 		Application.Send();
 	END_IF
 	(***********************************************************************************************)
-END_IF
-]]></ST>
+END_IF]]></ST>
     </Implementation>
     <Method Name="FB_init" Id="{5983d63a-b1d4-46de-b4c2-689f20870633}">
       <Declaration><![CDATA[METHOD FB_init : BOOL
@@ -120,6 +116,28 @@ END_VAR
           <ST><![CDATA[_sPrefix := Name;]]></ST>
         </Implementation>
       </Set>
+    </Property>
+    <Property Name="ReceivedString" Id="{a9815cba-903f-48ce-b0b4-7805bbdaae80}">
+      <Declaration><![CDATA[PROPERTY ReceivedString : STRING]]></Declaration>
+      <Get Name="Get" Id="{af830d84-4ec9-4105-aba7-92051a99c281}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="SentString" Id="{21bb090c-92ac-4be7-b1d1-3423e2c4272c}">
+      <Declaration><![CDATA[PROPERTY SentString : STRING]]></Declaration>
+      <Get Name="Get" Id="{546dc0f2-d889-45bc-b992-b80164608126}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SentString := fbTx.sGet;]]></ST>
+        </Implementation>
+      </Get>
     </Property>
     <Property Name="ServerConnectionHandle" Id="{beec8623-cf64-4300-939c-58c1e0b8b568}">
       <Declaration><![CDATA[PROPERTY ServerConnectionHandle : REFERENCE TO T_HSERVER]]></Declaration>
